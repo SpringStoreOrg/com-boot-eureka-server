@@ -1,4 +1,8 @@
-# Microservices with Spring Boot
-The source code for personal (learning) project using Microservices with Spring Boot. 
+# Development
 
-Thanks.
+```bash
+mvn package
+docker build . -t fractalwoodstories/eureka-server:latest
+docker push fractalwoodstories/eureka-server:latest
+helm upgrade --install eureka-server ./helm/eureka-server
+```
