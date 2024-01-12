@@ -58,7 +58,7 @@ pipeline {
             }
             steps{
                 sh """
-                    helm upgrade --install eureka-server ./helm/eureka-server --set image.tag=arm64-main-${shortGitCommit}
+                    helm upgrade --install eureka-server --namespace fractalwoodstories --create-namespace ./helm/eureka-server --set image.tag=arm64-main-${shortGitCommit}
                 """
             }
         }
