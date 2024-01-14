@@ -30,7 +30,7 @@ pipeline {
                             IMAGE_SHA=`docker images -q fractalwoodstories/eureka-server:arm64-latest`
                             docker tag \${IMAGE_SHA} fractalwoodstories/eureka-server:arm64-${shortGitCommit}
                             if [ "${env.BRANCH_NAME}" = "main" ] || [ "${env.BRANCH_NAME}" = "origin/main" ]; then
-                                docker tag \\${IMAGE_SHA} fractalwoodstories/eureka-server:arm64-main-${shortGitCommit}
+                                docker tag \${IMAGE_SHA} fractalwoodstories/eureka-server:arm64-main-${shortGitCommit}
                             fi
                             docker login -u ${USERNAME} -p ${PASSWORD}
                             docker push --all-tags \${IMAGE_SHA}
