@@ -27,12 +27,13 @@ pipeline {
                     withCredentials([usernamePassword(credentialsId: 'fractalwoodstories-docker-hub', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                         shortGitCommit = env.GIT_COMMIT[0..7]
                         sh """
-                            docker tag fractalwoodstories/eureka-server:arm64-latest fractalwoodstories/eureka-server:arm64-${shortGitCommit}
+                            IMAGE_SHA=$(docker images -q fractalwoodstories/eureka-server:arm64-latest)
+                            docker tag ${IMAGE_SHA} fractalwoodstories/eureka-server:arm64-${shortGitCommit}
                             if [ "${env.BRANCH_NAME}" = "main" ] || [ "${env.BRANCH_NAME}" = "origin/main" ]; then
-                                docker tag fractalwoodstories/eureka-server:arm64-latest fractalwoodstories/eureka-server:arm64-main-${shortGitCommit}
+                                docker tag ${IMAGE_SHA} fractalwoodstories/eureka-server:arm64-main-${shortGitCommit}
                             fi
                             docker login -u ${USERNAME} -p ${PASSWORD}
-                            docker push --all-tags fractalwoodstories/eureka-server:arm64-latest
+                            docker push --all-tags ${IMAGE_SHA}
                             docker logout
                         """
                     }
@@ -42,10 +43,8 @@ pipeline {
         stage('Docker housekeeping') {
             steps {
             sh """
-                docker image rm fractalwoodstories/eureka-server:arm64-latest fractalwoodstories/eureka-server:arm64-${shortGitCommit}
-                if [ "${env.BRANCH_NAME}" = "main" ] || [ "${env.BRANCH_NAME}" = "origin/main" ]; then
-                    docker image rm fractalwoodstories/eureka-server:arm64-main-${shortGitCommit}
-                fi
+                IMAGE_SHA=$(docker images -q fractalwoodstories/eureka-server:arm64-latest)
+                docker image rm --force ${IMAGE_SHA}
             """
             }
         }
