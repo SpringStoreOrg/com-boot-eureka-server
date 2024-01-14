@@ -3,4 +3,4 @@ environment {
    microserviceName = 'gateway-service'
 }
 @Library('fractalwoodstories-jenkins-libraries@main') _
-backend('eureka-server')
+backend()
