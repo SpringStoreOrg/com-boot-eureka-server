@@ -1,4 +1,6 @@
 def shortGitCommit
+def microserviceName='eureka-server'
+def dockerImageBaseName="fractalwoodstories/${microserviceName}"
 
 pipeline {
     agent any
@@ -17,7 +19,7 @@ pipeline {
         stage('Docker Build') {
             steps {
                 sh """
-                    docker build . -t fractalwoodstories/eureka-server:arm64-latest
+                    docker build . -t ${dockerImageBaseName}:arm64-latest
                 """
             }
         }
@@ -27,13 +29,12 @@ pipeline {
                     withCredentials([usernamePassword(credentialsId: 'fractalwoodstories-docker-hub', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                         shortGitCommit = env.GIT_COMMIT[0..7]
                         sh """
-                            IMAGE_SHA=\\$(docker images -q fractalwoodstories/eureka-server:arm64-latest)
-                            docker tag \$IMAGE_SHA fractalwoodstories/eureka-server:arm64-${shortGitCommit}
+                            docker tag ${dockerImageBaseName}:arm64-latest ${dockerImageBaseName}:arm64-${shortGitCommit}
                             if [ "${env.BRANCH_NAME}" = "main" ] || [ "${env.BRANCH_NAME}" = "origin/main" ]; then
-                                docker tag \$IMAGE_SHA fractalwoodstories/eureka-server:arm64-main-${shortGitCommit}
+                                docker tag ${dockerImageBaseName}:arm64-latest ${dockerImageBaseName}:arm64-main-${shortGitCommit}
                             fi
                             docker login -u ${USERNAME} -p ${PASSWORD}
-                            docker push --all-tags \$IMAGE_SHA
+                            docker push --all-tags ${dockerImageBaseName}
                             docker logout
                         """
                     }
@@ -44,8 +45,8 @@ pipeline {
             steps {
                 script {
                     sh """
-                        IMAGE_SHA=$(docker images -q fractalwoodstories/eureka-server:arm64-latest)
-                        docker image rm --force ${IMAGE_SHA}
+                        IMAGE_SHA=`docker images -q ${dockerImageBaseName}:arm64-latest`
+                        docker image rm --force \${IMAGE_SHA}
                     """
                 }
             }
@@ -56,7 +57,7 @@ pipeline {
             }
             steps{
                 sh """
-                    helm upgrade --install eureka-server --namespace fractalwoodstories --create-namespace ./helm/eureka-server --set image.tag=arm64-main-${shortGitCommit}
+                    helm upgrade --install ${microserviceName} --namespace fractalwoodstories --create-namespace ./helm/${microserviceName} --set image.tag=arm64-main-${shortGitCommit}
                 """
             }
         }
