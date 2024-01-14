@@ -27,13 +27,13 @@ pipeline {
                     withCredentials([usernamePassword(credentialsId: 'fractalwoodstories-docker-hub', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                         shortGitCommit = env.GIT_COMMIT[0..7]
                         sh """
-                            IMAGE_SHA=\\$(docker images -q fractalwoodstories/eureka-server:arm64-latest)
-                            docker tag \$IMAGE_SHA fractalwoodstories/eureka-server:arm64-${shortGitCommit}
+                            IMAGE_SHA=\$(docker images -q fractalwoodstories/eureka-server:arm64-latest)
+                            docker tag \${IMAGE_SHA} fractalwoodstories/eureka-server:arm64-${shortGitCommit}
                             if [ "${env.BRANCH_NAME}" = "main" ] || [ "${env.BRANCH_NAME}" = "origin/main" ]; then
-                                docker tag \$IMAGE_SHA fractalwoodstories/eureka-server:arm64-main-${shortGitCommit}
+                                docker tag \${IMAGE_SHA} fractalwoodstories/eureka-server:arm64-main-${shortGitCommit}
                             fi
                             docker login -u ${USERNAME} -p ${PASSWORD}
-                            docker push --all-tags \$IMAGE_SHA
+                            docker push --all-tags \${IMAGE_SHA}
                             docker logout
                         """
                     }
@@ -45,7 +45,7 @@ pipeline {
                 script {
                     sh """
                         IMAGE_SHA=$(docker images -q fractalwoodstories/eureka-server:arm64-latest)
-                        docker image rm --force ${IMAGE_SHA}
+                        docker image rm --force \${IMAGE_SHA}
                     """
                 }
             }
