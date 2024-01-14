@@ -42,10 +42,12 @@ pipeline {
         }
         stage('Docker housekeeping') {
             steps {
-            sh """
-                IMAGE_SHA=$(docker images -q fractalwoodstories/eureka-server:arm64-latest)
-                docker image rm --force ${IMAGE_SHA}
-            """
+                script {
+                    sh """
+                        IMAGE_SHA=$(docker images -q fractalwoodstories/eureka-server:arm64-latest)
+                        docker image rm --force ${IMAGE_SHA}
+                    """
+                }
             }
         }
         stage('Helm main') {
