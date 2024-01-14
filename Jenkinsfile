@@ -28,28 +28,25 @@ pipeline {
                         shortGitCommit = env.GIT_COMMIT[0..7]
                         sh """
                             docker tag fractalwoodstories/eureka-server:arm64-latest fractalwoodstories/eureka-server:arm64-${shortGitCommit}
+                            if [ "${env.BRANCH_NAME}" = "main" ] || [ "${env.BRANCH_NAME}" = "origin/main" ]; then
+                                docker tag fractalwoodstories/eureka-server:arm64-latest fractalwoodstories/eureka-server:arm64-main-${shortGitCommit}
+                            fi
                             docker login -u ${USERNAME} -p ${PASSWORD}
-                            docker push fractalwoodstories/eureka-server:arm64-latest
-                            docker push fractalwoodstories/eureka-server:arm64-${shortGitCommit}
+                            docker push --all-tags fractalwoodstories/eureka-server:arm64-latest
                             docker logout
                         """
                     }
                 }
             }
         }
-        stage('Docker push main') {
-            when {
-                expression { env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'origin/main' }
-            }
+        stage('Docker housekeeping') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'fractalwoodstories-docker-hub', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                    sh """
-                        docker tag fractalwoodstories/eureka-server:arm64-latest fractalwoodstories/eureka-server:arm64-main-${shortGitCommit}
-                        docker login -u ${USERNAME} -p ${PASSWORD}
-                        docker push fractalwoodstories/eureka-server:arm64-main-${shortGitCommit}
-                        docker logout
-                    """
-                }
+            sh """
+                docker image rm fractalwoodstories/eureka-server:arm64-latest fractalwoodstories/eureka-server:arm64-${shortGitCommit}
+                if [ "${env.BRANCH_NAME}" = "main" ] || [ "${env.BRANCH_NAME}" = "origin/main" ]; then
+                    docker image rm fractalwoodstories/eureka-server:arm64-main-${shortGitCommit}
+                fi
+            """
             }
         }
         stage('Helm main') {
