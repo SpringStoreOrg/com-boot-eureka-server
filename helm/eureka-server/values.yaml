@@ -47,7 +47,7 @@ ingress:
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   hosts:
-    - host: calypso-binar.com
+    - host: fractalwoodstories.com
       paths:
         - path: "/eureka"
           pathType: ImplementationSpecific
@@ -87,6 +87,6 @@ env:
   #    - name: SERVER_SERVLET_CONTEXT_PATH
   #      value: /eureka
   #  - name: EUREKA_INSTANCE_HOSTNAME
-  #    value: calypso-binar.com
+  #    value: fractalwoodstories.com
   #    - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
-  #      value: https://calypso-binar.com/eureka
+  #      value: https://fractalwoodstories.com/eureka
